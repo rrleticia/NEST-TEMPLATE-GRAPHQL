@@ -1,0 +1,138 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A field whose value conforms to the standard cuid format as specified in https://github.com/ericelliott/cuid#broken-down
+"""
+scalar Cuid @specifiedBy(url: "https://github.com/ericelliott/cuid#broken-down")
+
+"""
+A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar Date
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+"""
+scalar EmailAddress @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
+
+input FetchPageArgs {
+  limit: Int = 50
+  order: PaginationOrder = ASC
+  page: Int = 1
+}
+
+input LoginInput {
+  """An unique email for the user"""
+  email: EmailAddress!
+
+  """A password for the user"""
+  password: String!
+}
+
+type LoginResponse {
+  code: Int
+  status: String
+  timestamp: DateTime
+}
+
+input MutateUserInput {
+  """An unique email for the user"""
+  email: EmailAddress
+
+  """A name for user"""
+  name: String
+
+  """A password for the user"""
+  password: String
+
+  """An unique username for user"""
+  username: String
+}
+
+type Mutation {
+  create(newUserInput: NewUserInput!): User!
+  delete(id: String!): Boolean!
+  login(loginInput: LoginInput!): LoginResponse!
+  logout: LoginResponse!
+  update(id: String!, mutateUserInput: MutateUserInput!): User!
+}
+
+input NewUserInput {
+  """An unique email for the user"""
+  email: EmailAddress!
+
+  """A name for user"""
+  name: String
+
+  """A password email for the user"""
+  password: String!
+
+  """An unique username for user"""
+  username: String!
+}
+
+type PaginatedUser {
+  data: [User!]
+  meta: UsersOffsetMetadata!
+}
+
+"""The supported pagination order options."""
+enum PaginationOrder {
+  ASC
+  DESC
+}
+
+type Query {
+  profile: User!
+  user(id: String!): User!
+  users(fetchPageArgs: FetchPageArgs!): PaginatedUser!
+}
+
+"""The supported user roles."""
+enum Role {
+  ADMIN
+  USER
+}
+
+"""users"""
+type User {
+  """The createdAt register for the user"""
+  createdAt: Date
+
+  """An unique email for the user"""
+  email: EmailAddress!
+
+  """The unique identifier for user"""
+  id: Cuid!
+
+  """A name for user"""
+  name: String
+
+  """A password email for the user"""
+  password: String
+
+  """The roles for the user"""
+  roles: [Role!]!
+
+  """The createdAt register for the user"""
+  updatedAt: Date
+
+  """An unique username for user"""
+  username: String!
+}
+
+type UsersOffsetMetadata {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  itemCount: Int!
+  limit: Int
+  page: Int
+  pageCount: Int!
+}

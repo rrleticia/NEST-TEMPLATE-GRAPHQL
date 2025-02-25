@@ -1,0 +1,26 @@
+# docker-compose up -d
+
+services:
+  database:
+    image: postgres:alpine
+    container_name: graphql_dev
+    restart: unless-stopped
+    ports:
+      - '${DB_PORT}:5432'
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    env_file:
+      - './.env'
+    volumes:
+      - pgdata:/data/postgres
+    networks:
+      - graphql
+
+networks:
+  graphql:
+
+volumes:
+  pgdata:
+    driver: local

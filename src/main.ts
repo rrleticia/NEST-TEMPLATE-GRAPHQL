@@ -26,8 +26,5 @@ async function bootstrap() {
 
   await app.listen(PORT);
   console.log(`Application is running on: http://localhost:${PORT}/${PREFIX}`);
-  console.log(
-    `Apollo Sandbox is avaliable on: https://studio.apollographql.com/sandbox/explorer`
-  );
 }
 bootstrap();

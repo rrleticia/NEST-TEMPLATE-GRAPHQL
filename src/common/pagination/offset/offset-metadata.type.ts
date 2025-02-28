@@ -1,7 +1,7 @@
-import { FetchPageArgs } from './fetch-page-offset.args';
+import { FetchPageOffsetArgs } from './fetch-page-offset.args';
 
 export interface IOffsetMetadataType {
-  fetchPageArgs: FetchPageArgs;
+  fetchPageArgs: FetchPageOffsetArgs;
   itemCount: number;
 }
 

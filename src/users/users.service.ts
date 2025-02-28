@@ -5,11 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './models/user.model';
-import { NewUserInput } from './dto/new-user.input';
-import { MutateUserInput } from './dto/mutate-user.input';
+import { CreateUserInput } from './dto/create-user.input';
+import { UpdateUserInput } from './dto/update-user.input';
 import { UsersRepository } from '@src/database/connection/user.repository';
-import { PaginatedUser } from './models/paginated-users';
-import { FetchPageArgs, OffsetMetadataType } from '@common/pagination/offset';
+import {
+  PaginatedOffsetUser,
+  PaginatedCursorUser,
+} from './models/paginated-users';
+import {
+  FetchPageOffsetArgs,
+  OffsetMetadataType,
+} from '@common/pagination/offset';
+import {
+  FetchPageCursorArgs,
+  CursorMetadataType,
+} from '@common/pagination/cursor';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
@@ -24,14 +34,14 @@ export class UsersService {
     return this._configService.get<string>('bycrypt.saltRounds');
   }
 
-  async findAll(fetchPageArgs: FetchPageArgs): Promise<any> {
+  async findAllOffSet(fetchPageArgs: FetchPageOffsetArgs): Promise<any> {
     try {
       const { order, page, limit } = fetchPageArgs;
 
-      const { users, itemCount } = await this.usersRepository.findAll(
+      const { users, itemCount } = await this.usersRepository.findAllOffset(
         order,
-        page,
-        limit
+        limit,
+        page
       );
 
       const metadataOffset = new OffsetMetadataType({
@@ -39,27 +49,27 @@ export class UsersService {
         itemCount,
       });
 
-      return { data: users, meta: metadataOffset } as PaginatedUser;
+      return { data: users, meta: metadataOffset } as PaginatedOffsetUser;
     } catch (error) {}
   }
 
-  // async findAllCursor(fetchPageArgs: FetchPageArgs): Promise<any> {
-  //   try {
-  //     const { order, page, limit } = fetchPageArgs;
+  async findAllCursor(fetchPageArgs: FetchPageCursorArgs): Promise<any> {
+    try {
+      const { order, limit, after } = fetchPageArgs;
 
-  //     const { users, itemCount, remainCount, edges } =
-  //       await this.usersRepository.findAll(order, page, limit);
+      const { users, itemCount, remainCount, edges } =
+        await this.usersRepository.findAllCursor(order, limit, after);
 
-  //     const metadataCursor = new CursorMetadataType({
-  //       limit,
-  //       itemCount,
-  //       remainCount,
-  //       edges,
-  //     });
+      const metadataCursor = new CursorMetadataType({
+        limit,
+        itemCount,
+        remainCount,
+        edges,
+      });
 
-  //     return { data: users, meta: metadataCursor } as PaginatedUser;
-  //   } catch (error) {}
-  // }
+      return { data: users, meta: metadataCursor } as PaginatedCursorUser;
+    } catch (error) {}
+  }
 
   async findOneByEmail(email: string): Promise<User> {
     try {
@@ -89,7 +99,7 @@ export class UsersService {
     }
   }
 
-  async create(rawUserInput: NewUserInput): Promise<User> {
+  async create(rawUserInput: CreateUserInput): Promise<User> {
     try {
       const newUserInput = await this._hashPassword(rawUserInput);
 
@@ -99,9 +109,9 @@ export class UsersService {
     } catch (error) {}
   }
 
-  async update(id: string, mutateUserInput: MutateUserInput): Promise<User> {
+  async update(id: string, rawUserInput: UpdateUserInput): Promise<User> {
     try {
-      const user = await this.usersRepository.update(id, mutateUserInput);
+      const user = await this.usersRepository.update(id, rawUserInput);
       return user;
     } catch (error) {}
   }
@@ -113,7 +123,7 @@ export class UsersService {
     } catch (error) {}
   }
 
-  private async _hashPassword(user: NewUserInput): Promise<NewUserInput> {
+  private async _hashPassword(user: CreateUserInput): Promise<CreateUserInput> {
     try {
       const password = user.password;
 

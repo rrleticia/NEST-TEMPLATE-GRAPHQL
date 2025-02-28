@@ -2,7 +2,7 @@ import { PaginationOrder } from '@common/enums/pagination-order.enum';
 import { Field, InputType, Int } from '@nestjs/graphql';
 
 @InputType()
-export class FetchPageArgs {
+export class FetchPageOffsetArgs {
   @Field((type) => PaginationOrder, {
     nullable: true,
     defaultValue: PaginationOrder.ASC,

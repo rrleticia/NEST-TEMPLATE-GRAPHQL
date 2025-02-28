@@ -1,20 +1,34 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './models/user.model';
-import { NewUserInput } from './dto/new-user.input';
-import { MutateUserInput } from './dto/mutate-user.input';
-import { PaginatedUser } from './models/paginated-users';
-import { FetchPageArgs } from '@common/pagination/offset';
+import { CreateUserInput } from './dto/create-user.input';
+import { UpdateUserInput } from './dto/update-user.input';
+import {
+  PaginatedOffsetUser,
+  PaginatedCursorUser,
+} from './models/paginated-users';
+import { FetchPageCursorArgs } from '@common/pagination/cursor';
+import { FetchPageOffsetArgs } from '@common/pagination/offset';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private _usersService: UsersService) {}
 
-  @Query(() => PaginatedUser, { name: 'users' })
-  async getUsers(
-    @Args('fetchPageArgs') fetchPageArgs: FetchPageArgs
-  ): Promise<PaginatedUser> {
-    const page = await this._usersService.findAll(fetchPageArgs);
+  @Query(() => PaginatedOffsetUser, { name: 'usersOffset' })
+  async getUsersWithOffset(
+    @Args('fetchPageArgs')
+    fetchPageArgs: FetchPageOffsetArgs
+  ): Promise<PaginatedOffsetUser> {
+    const page = await this._usersService.findAllOffSet(fetchPageArgs);
+    return page;
+  }
+
+  @Query(() => PaginatedCursorUser, { name: 'usersCursor' })
+  async getUsersWithCursor(
+    @Args('fetchPageArgs')
+    fetchPageArgs: FetchPageCursorArgs
+  ): Promise<PaginatedCursorUser> {
+    const page = await this._usersService.findAllCursor(fetchPageArgs);
     return page;
   }
 
@@ -25,17 +39,17 @@ export class UsersResolver {
 
   @Mutation(() => User, { name: 'create' })
   async createUser(
-    @Args('newUserInput') newUserInput: NewUserInput
+    @Args('createUserInput') createUserInput: CreateUserInput
   ): Promise<User> {
-    return await this._usersService.create(newUserInput);
+    return await this._usersService.create(createUserInput);
   }
 
   @Mutation(() => User, { name: 'update' })
   async updateUser(
     @Args('id') id: string,
-    @Args('mutateUserInput') mutateUserInput: MutateUserInput
+    @Args('updateUserInput') updateUserInput: UpdateUserInput
   ): Promise<User> {
-    return await this._usersService.update(id, mutateUserInput);
+    return await this._usersService.update(id, updateUserInput);
   }
 
   @Mutation(() => Boolean, { name: 'delete' })

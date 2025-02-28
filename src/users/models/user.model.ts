@@ -1,5 +1,10 @@
 import { Role } from '@prisma/client';
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import {
+  Extensions,
+  Field,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import {
   GraphQLCuid as CUID,
   GraphQLDate as Date,
@@ -43,11 +48,14 @@ export class User {
     nullable: true,
     description: `The createdAt register for the user`,
   })
+  // TODO: maybe it doesn't work right now
+  @Extensions({ role: Role.ADMIN })
   createdAt: Date;
 
   @Field((type) => Date, {
     nullable: true,
     description: `The createdAt register for the user`,
   })
+  @Extensions({ role: Role.ADMIN })
   updatedAt: Date;
 }

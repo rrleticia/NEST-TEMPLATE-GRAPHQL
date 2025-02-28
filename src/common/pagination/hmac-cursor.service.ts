@@ -22,7 +22,11 @@ export class HMACCursorService {
   }
 
   // Decode the cursor and extract the original ID
-  decodeCursor(cursor: string): string | undefined {
+  decodeCursor(cursor: string | undefined): string | undefined {
+    if (!cursor) {
+      return undefined;
+    }
+
     const [id, providedHmac] = cursor.split(':');
     if (!id || !providedHmac) return undefined;
 

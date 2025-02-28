@@ -2,16 +2,16 @@ import { PaginationOrder } from '@common/enums/pagination-order.enum';
 import { Field, InputType, Int } from '@nestjs/graphql';
 
 @InputType()
-export class FetchPageArgs {
+export class FetchPageCursorArgs {
   @Field((type) => PaginationOrder, {
     nullable: true,
     defaultValue: PaginationOrder.ASC,
   })
   order: PaginationOrder;
 
-  @Field(() => Int, { defaultValue: 10 })
-  take: number;
+  @Field((type) => Int, { nullable: true, defaultValue: 10 })
+  limit?: number;
 
-  @Field(() => String, { nullable: true })
+  @Field((type) => String, { nullable: true })
   after?: string;
 }

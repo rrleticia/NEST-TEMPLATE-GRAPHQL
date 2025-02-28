@@ -18,7 +18,7 @@ export class PrismaUsersRepository implements UsersRepository {
     private readonly hmacCursorService: HMACCursorService
   ) {}
 
-  async findAll(
+  async findAllOffset(
     order: PaginationOrder,
     limit: number,
     page: number
@@ -30,9 +30,7 @@ export class PrismaUsersRepository implements UsersRepository {
       where: {
         roles: { has: Role.USER },
       },
-      orderBy: {
-        createdAt: sort,
-      },
+      orderBy: [{ createdAt: sort }, { id: 'asc' }],
       skip: skip,
       take: limit,
     });
@@ -51,19 +49,19 @@ export class PrismaUsersRepository implements UsersRepository {
     limit: number,
     after?: string
   ): Promise<any> {
-    const sort = order == PaginationOrder.ASC ? 'asc' : 'desc';
+    const sort =
+      order == PaginationOrder.ASC || order == undefined ? 'asc' : 'desc';
+
     const cursor = this.hmacCursorService.decodeCursor(after);
 
     const users = await this.prisma.user.findMany({
       where: {
         roles: { has: Role.USER },
       },
-      orderBy: {
-        createdAt: sort,
-      },
-      skip: after ? 1 : 0,
+      orderBy: [{ createdAt: sort }, { id: 'asc' }],
       take: limit,
       cursor: after ? { id: cursor } : undefined,
+      skip: after ? 1 : 0,
     });
 
     const itemCount = await this.prisma.user.count({
@@ -76,29 +74,27 @@ export class PrismaUsersRepository implements UsersRepository {
     const lastUser = users.length > 0 ? users[users.length - 1] : undefined;
 
     let remainCount = 0;
+    let edges: IEdgeType<User>[] = [];
 
     if (lastUser) {
       remainCount = await this.prisma.user.count({
         where: { roles: { has: Role.USER } },
-        orderBy: {
-          createdAt: sort,
-        },
+        orderBy: [{ createdAt: sort }, { id: 'asc' }],
         cursor: { id: lastUser.id },
         skip: 1,
       });
-    }
 
-    let edges: IEdgeType<User>[] = [];
-    edges[0] = {
-      cursor: this.hmacCursorService.encodeCursor(firstUser.id),
-      node: firstUser,
-      direction: CursorDirection.FIRST,
-    };
-    edges[1] = {
-      cursor: this.hmacCursorService.encodeCursor(firstUser.id),
-      node: firstUser,
-      direction: CursorDirection.FIRST,
-    };
+      edges[0] = {
+        cursor: this.hmacCursorService.encodeCursor(firstUser.id),
+        node: firstUser,
+        direction: CursorDirection.FIRST,
+      };
+      edges[1] = {
+        cursor: this.hmacCursorService.encodeCursor(lastUser.id),
+        node: lastUser,
+        direction: CursorDirection.LAST,
+      };
+    }
 
     return { users, itemCount, remainCount, edges };
   }

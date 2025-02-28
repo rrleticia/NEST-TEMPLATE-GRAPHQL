@@ -3,18 +3,32 @@ import { UsersService } from './users.service';
 import { User } from './models/user.model';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { PaginatedUser } from './models/paginated-users';
-import { FetchPageArgs } from '@common/pagination/offset';
+import {
+  PaginatedOffsetUser,
+  PaginatedCursorUser,
+} from './models/paginated-users';
+import { FetchPageCursorArgs } from '@common/pagination/cursor';
+import { FetchPageOffsetArgs } from '@common/pagination/offset';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private _usersService: UsersService) {}
 
-  @Query(() => PaginatedUser, { name: 'users' })
-  async getUsers(
-    @Args('fetchPageArgs') fetchPageArgs: FetchPageArgs
-  ): Promise<PaginatedUser> {
-    const page = await this._usersService.findAll(fetchPageArgs);
+  @Query(() => PaginatedOffsetUser, { name: 'usersOffset' })
+  async getUsersWithOffset(
+    @Args('fetchPageArgs')
+    fetchPageArgs: FetchPageOffsetArgs
+  ): Promise<PaginatedOffsetUser> {
+    const page = await this._usersService.findAllOffSet(fetchPageArgs);
+    return page;
+  }
+
+  @Query(() => PaginatedCursorUser, { name: 'usersCursor' })
+  async getUsersWithCursor(
+    @Args('fetchPageArgs')
+    fetchPageArgs: FetchPageCursorArgs
+  ): Promise<PaginatedCursorUser> {
+    const page = await this._usersService.findAllCursor(fetchPageArgs);
     return page;
   }
 

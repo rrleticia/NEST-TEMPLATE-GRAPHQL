@@ -2,10 +2,30 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateUserInput {
+  """An unique email for the user"""
+  email: EmailAddress!
+
+  """A name for user"""
+  name: String
+
+  """A password email for the user"""
+  password: String!
+
+  """An unique username for user"""
+  username: String!
+}
+
 """
 A field whose value conforms to the standard cuid format as specified in https://github.com/ericelliott/cuid#broken-down
 """
 scalar Cuid @specifiedBy(url: "https://github.com/ericelliott/cuid#broken-down")
+
+"""The supported cursor directions options."""
+enum CursorDirection {
+  FIRST
+  LAST
+}
 
 """
 A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
@@ -22,7 +42,13 @@ A field whose value conforms to the standard internet email address format as sp
 """
 scalar EmailAddress @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
 
-input FetchPageArgs {
+input FetchPageCursorArgs {
+  after: String
+  limit: Int = 10
+  order: PaginationOrder = ASC
+}
+
+input FetchPageOffsetArgs {
   limit: Int = 50
   order: PaginationOrder = ASC
   page: Int = 1
@@ -42,43 +68,20 @@ type LoginResponse {
   timestamp: DateTime
 }
 
-input MutateUserInput {
-  """An unique email for the user"""
-  email: EmailAddress
-
-  """A name for user"""
-  name: String
-
-  """A password for the user"""
-  password: String
-
-  """An unique username for user"""
-  username: String
-}
-
 type Mutation {
-  create(newUserInput: NewUserInput!): User!
+  create(createUserInput: CreateUserInput!): User!
   delete(id: String!): Boolean!
   login(loginInput: LoginInput!): LoginResponse!
   logout: LoginResponse!
-  update(id: String!, mutateUserInput: MutateUserInput!): User!
+  update(id: String!, updateUserInput: UpdateUserInput!): User!
 }
 
-input NewUserInput {
-  """An unique email for the user"""
-  email: EmailAddress!
-
-  """A name for user"""
-  name: String
-
-  """A password email for the user"""
-  password: String!
-
-  """An unique username for user"""
-  username: String!
+type PaginatedCursorUser {
+  data: [User!]
+  meta: UsersCursorMetadata!
 }
 
-type PaginatedUser {
+type PaginatedOffsetUser {
   data: [User!]
   meta: UsersOffsetMetadata!
 }
@@ -92,13 +95,28 @@ enum PaginationOrder {
 type Query {
   profile: User!
   user(id: String!): User!
-  users(fetchPageArgs: FetchPageArgs!): PaginatedUser!
+  usersCursor(fetchPageArgs: FetchPageCursorArgs!): PaginatedCursorUser!
+  usersOffset(fetchPageArgs: FetchPageOffsetArgs!): PaginatedOffsetUser!
 }
 
 """The supported user roles."""
 enum Role {
   ADMIN
   USER
+}
+
+input UpdateUserInput {
+  """An unique email for the user"""
+  email: EmailAddress
+
+  """A name for user"""
+  name: String
+
+  """A password email for the user"""
+  password: String
+
+  """An unique username for user"""
+  username: String
 }
 
 """users"""
@@ -126,6 +144,21 @@ type User {
 
   """An unique username for user"""
   username: String!
+}
+
+type UserEdge {
+  cursor: String!
+  direction: CursorDirection
+  node: User!
+}
+
+type UsersCursorMetadata {
+  edges: [UserEdge!]
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  itemCount: Int!
+  limit: Int
+  remainCount: Int!
 }
 
 type UsersOffsetMetadata {

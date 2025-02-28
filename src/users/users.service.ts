@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './models/user.model';
-import { NewUserInput } from './dto/new-user.input';
+import { NewUserInput } from './dto/create-user.input';
 import { MutateUserInput } from './dto/mutate-user.input';
 import { UsersRepository } from '@src/database/connection/user.repository';
 import { PaginatedUser } from './models/paginated-users';

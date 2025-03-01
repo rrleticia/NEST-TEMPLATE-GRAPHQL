@@ -19,9 +19,6 @@ export default () => ({
     secret: process.env.JWT_SECRET_KEY,
     issuer: process.env.JWT_SECRET_ISSUER,
   },
-  bycrypt: {
-    saltRounds: Number(process.env.SALT_ROUNDS) ?? 11,
-  },
   admin: {
     password: process.env.ADMIN_PASSWORD,
   },

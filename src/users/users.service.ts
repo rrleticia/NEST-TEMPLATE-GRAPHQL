@@ -21,7 +21,8 @@ import {
   CursorMetadataType,
 } from '@common/pagination/cursor';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
+import { argonConstants } from '@common/constants';
 
 @Injectable()
 export class UsersService {
@@ -29,10 +30,6 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly _configService: ConfigService
   ) {}
-
-  private getSaltRounds(): string {
-    return this._configService.get<string>('bycrypt.saltRounds');
-  }
 
   async findAllOffSet(fetchPageArgs: FetchPageOffsetArgs): Promise<any> {
     try {
@@ -133,9 +130,7 @@ export class UsersService {
         );
       }
 
-      const saltRounds = this.getSaltRounds();
-
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      const hashedPassword = await argon2.hash(password, argonConstants);
 
       user.password = hashedPassword;
 

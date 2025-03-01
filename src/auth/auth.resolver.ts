@@ -30,7 +30,7 @@ export class AuthResolver {
   async login(
     @Args('loginInput') _: LoginInput,
     @JwtPayload() jwtPayload: JwtPayloadType,
-    @Context() ctx
+    @Context() ctx: any
   ): Promise<LoginResponse> {
     const { res } = ctx;
 
@@ -52,7 +52,6 @@ export class AuthResolver {
     };
   }
 
-  @SkipAuth()
   @UseGuards(JwtAuthGuard)
   @Mutation((returns) => LoginResponse, { name: 'logout' })
   async logout(@Context() ctx): Promise<LoginResponse> {

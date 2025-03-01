@@ -19,7 +19,7 @@ export function Paginated<T>(classRef: Type<T>): Type<IPaginatedType<T>> {
     @Field(() => classRef)
     node: T;
 
-    @Field(() => CursorDirection, { nullable: true })
+    @Field(() => CursorDirection)
     direction: CursorDirection;
   }
 

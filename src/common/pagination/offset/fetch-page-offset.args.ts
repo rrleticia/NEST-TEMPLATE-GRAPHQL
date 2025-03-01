@@ -12,6 +12,6 @@ export class FetchPageOffsetArgs {
   @Field((type) => Int, { nullable: true, defaultValue: 1 })
   page?: number;
 
-  @Field((type) => Int, { nullable: true, defaultValue: 50 })
+  @Field((type) => Int, { nullable: true, defaultValue: 10 })
   limit?: number;
 }

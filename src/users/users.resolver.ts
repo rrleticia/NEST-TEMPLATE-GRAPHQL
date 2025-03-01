@@ -9,11 +9,14 @@ import {
 } from './models/paginated-users';
 import { FetchPageCursorArgs } from '@common/pagination/cursor';
 import { FetchPageOffsetArgs } from '@common/pagination/offset';
+import { Roles } from '@common/roles';
+import { Role } from '@prisma/client';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private _usersService: UsersService) {}
 
+  @Roles(Role.ADMIN)
   @Query(() => PaginatedOffsetUser, { name: 'usersOffset' })
   async getUsersWithOffset(
     @Args('fetchPageArgs')

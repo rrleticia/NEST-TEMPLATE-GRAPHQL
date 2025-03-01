@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { AsyncMaybe } from '@common/logic/Maybe';
 import { User } from '@src/users/models/user.model';
@@ -33,7 +33,7 @@ export class AuthService {
       return undefined;
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await argon2.verify(password, user.password);
 
     if (!isMatch) {
       return undefined;

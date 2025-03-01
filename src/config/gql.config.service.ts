@@ -22,6 +22,9 @@ export class GqlConfigService implements GqlOptionsFactory {
       // buildSchemaOptions: {
       //   orphanedTypes: [User, ],
       // },
+      subscriptions: {
+        'graphql-ws': true,
+      },
       context: ({ req, res }) => ({ req, res }),
     };
   }

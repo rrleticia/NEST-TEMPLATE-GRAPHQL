@@ -15,15 +15,15 @@ export class AuthService {
     private _configService: ConfigService
   ) {}
 
-  getJwtSecret(): string {
+  public getJwtSecret(): string {
     return this._configService.get<string>('jwt.secret');
   }
 
-  getJwtIssuer(): string {
+  public getJwtIssuer(): string {
     return this._configService.get<string>('jwt.issuer');
   }
 
-  async validateUser(
+  public async validateUser(
     email: string,
     password: string
   ): AsyncMaybe<Partial<User>> {
@@ -33,7 +33,7 @@ export class AuthService {
       return undefined;
     }
 
-    const isMatch = await argon2.verify(password, user.password);
+    const isMatch = await argon2.verify(user.password, password);
 
     if (!isMatch) {
       return undefined;
@@ -42,9 +42,10 @@ export class AuthService {
     return user;
   }
 
-  async login(user: Partial<User>): Promise<{ access_token: string }> {
+  public async login(user: Partial<User>): Promise<{ access_token: string }> {
     const payload = {
       sub: user.id,
+
       email: user.email,
       roles: user.roles,
     };
@@ -66,7 +67,7 @@ export class AuthService {
     };
   }
 
-  verifyToken(token: string): any {
+  public verifyToken(token: string): any {
     try {
       const issuer = this.getJwtIssuer();
       const secret = this.getJwtSecret();

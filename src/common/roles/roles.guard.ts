@@ -1,5 +1,6 @@
 import { Role } from '@prisma/client';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '@common/roles';
 
@@ -17,10 +18,10 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const ctx = context.switchToHttp();
-    const request = ctx.getRequest();
+    const ctx = GqlExecutionContext.create(context);
+    const { req } = ctx.getContext();
 
-    const { user } = request;
+    const { user } = req;
 
     return requiredRoles.some((role) => user.roles?.includes(role));
   }

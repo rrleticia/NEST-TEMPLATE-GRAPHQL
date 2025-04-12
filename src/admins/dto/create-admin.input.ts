@@ -1,6 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { GraphQLEmailAddress as Email } from 'graphql-scalars';
 
+@InputType()
 export class CreateAdminInput {
   @Field((type) => Email, {
     nullable: false,

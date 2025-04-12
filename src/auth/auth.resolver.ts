@@ -39,8 +39,8 @@ export class AuthResolver {
     res
       .cookie('access_token', access_token, {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'None',
         expires: ExpireDate(jwtConstants.expiresInNum),
       })
       .status(200);
@@ -59,8 +59,8 @@ export class AuthResolver {
     res
       .clearCookie('access_token', {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'None',
       })
       .status(200);
 

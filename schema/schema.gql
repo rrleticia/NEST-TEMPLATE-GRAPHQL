@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateAdminInput {
+  """The password used by the admin to make sensitive changes"""
+  admin_password: String!
+
+  """An unique email for the user"""
+  email: EmailAddress!
+}
+
 input CreateUserInput {
   """An unique email for the user"""
   email: EmailAddress!
@@ -49,7 +57,7 @@ input FetchPageCursorArgs {
 }
 
 input FetchPageOffsetArgs {
-  limit: Int = 50
+  limit: Int = 10
   order: PaginationOrder = ASC
   page: Int = 1
 }
@@ -69,6 +77,7 @@ type LoginResponse {
 }
 
 type Mutation {
+  admin(createAdminInput: CreateAdminInput!): User!
   create(createUserInput: CreateUserInput!): User!
   delete(id: String!): Boolean!
   login(loginInput: LoginInput!): LoginResponse!
@@ -148,7 +157,7 @@ type User {
 
 type UserEdge {
   cursor: String!
-  direction: CursorDirection
+  direction: CursorDirection!
   node: User!
 }
 

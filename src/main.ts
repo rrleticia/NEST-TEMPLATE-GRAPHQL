@@ -13,10 +13,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.enableCors({
-    allowedHeaders: '*',
-    methods: 'GET,POST,DELETE',
-    origin: '*',
-    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: 'https://studio.apollographql.com', // Allow the specific origin
+    credentials: true, // Allow cookies to be sent with requests
   });
 
   const PREFIX = configService.get<string>('app.prefix');
@@ -26,5 +25,9 @@ async function bootstrap() {
 
   await app.listen(PORT);
   console.log(`Application is running on: http://localhost:${PORT}/${PREFIX}`);
+  console.log(
+    `Sandbox located at https://studio.apollographql.com/sandbox/explorer/`
+  );
 }
+
 bootstrap();

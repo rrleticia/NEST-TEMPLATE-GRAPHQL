@@ -12,7 +12,7 @@ export const JwtPayload = createParamDecorator(
     const ctx = gqplCtx.getContext();
     const request = ctx.req;
     const jwtPayload: JwtPayloadType = request.user;
-
+    console.log(jwtPayload);
     if (jwtPayload) {
       return jwtPayload;
     } else {

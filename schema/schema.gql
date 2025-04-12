@@ -78,11 +78,11 @@ type LoginResponse {
 
 type Mutation {
   admin(createAdminInput: CreateAdminInput!): User!
-  create(createUserInput: CreateUserInput!): User!
+  create(createInput: CreateUserInput!): User!
   delete(id: String!): Boolean!
   login(loginInput: LoginInput!): LoginResponse!
   logout: LoginResponse!
-  update(id: String!, updateUserInput: UpdateUserInput!): User!
+  update(id: String!, updateInput: UpdateUserInput!): User!
 }
 
 type PaginatedCursorUser {
@@ -102,10 +102,10 @@ enum PaginationOrder {
 }
 
 type Query {
+  get(id: String!): User!
+  getWithCursor(fetchPageArgs: FetchPageCursorArgs!): PaginatedCursorUser!
+  getWithOffset(fetchPageArgs: FetchPageOffsetArgs!): PaginatedOffsetUser!
   profile: User!
-  user(id: String!): User!
-  usersCursor(fetchPageArgs: FetchPageCursorArgs!): PaginatedCursorUser!
-  usersOffset(fetchPageArgs: FetchPageOffsetArgs!): PaginatedOffsetUser!
 }
 
 """The supported user roles."""

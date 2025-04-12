@@ -12,128 +12,60 @@ import {
   PaginatedOffsetUser,
   PaginatedCursorUser,
 } from './models/paginated-users';
-import {
-  FetchPageOffsetArgs,
-  OffsetMetadataType,
-} from '@common/pagination/offset';
-import {
-  FetchPageCursorArgs,
-  CursorMetadataType,
-} from '@common/pagination/cursor';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
 import { argonConstants } from '@common/constants';
+import { BaseService } from '@common/base/base.service';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseService<
+  User,
+  CreateUserInput,
+  UpdateUserInput,
+  PaginatedOffsetUser,
+  PaginatedCursorUser
+> {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly _configService: ConfigService
-  ) {}
-
-  async findAllOffSet(fetchPageArgs: FetchPageOffsetArgs): Promise<any> {
-    try {
-      const { order, page, limit } = fetchPageArgs;
-
-      const { users, itemCount } = await this.usersRepository.findAllOffset(
-        order,
-        limit,
-        page
-      );
-
-      const metadataOffset = new OffsetMetadataType({
-        fetchPageArgs,
-        itemCount,
-      });
-
-      return { data: users, meta: metadataOffset } as PaginatedOffsetUser;
-    } catch (error) {}
+  ) {
+    super(usersRepository);
   }
 
-  async findAllCursor(fetchPageArgs: FetchPageCursorArgs): Promise<any> {
-    try {
-      const { order, limit, after } = fetchPageArgs;
-
-      const { users, itemCount, remainCount, edges } =
-        await this.usersRepository.findAllCursor(order, limit, after);
-
-      const metadataCursor = new CursorMetadataType({
-        limit,
-        itemCount,
-        remainCount,
-        edges,
-      });
-
-      return { data: users, meta: metadataCursor } as PaginatedCursorUser;
-    } catch (error) {}
-  }
-
+  // Domain-specific method to find a user by email.
   async findOneByEmail(email: string): Promise<User> {
     try {
       const user = await this.usersRepository.findOneByEmail(email);
-
       if (!user) {
         throw new NotFoundException('The user does not exist in the database');
       }
-
       return user;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async findOneById(id: string): Promise<User> {
+  // Override the generic create method to include password hashing.
+  async create(createUserInput: CreateUserInput): Promise<User> {
     try {
-      const user = await this.usersRepository.findOneById(id);
-
-      if (!user) {
-        throw new NotFoundException('The user does not exist in the database');
-      }
-
-      return user;
+      const newUserInput = await this._hashPassword(createUserInput);
+      return await this.usersRepository.create(newUserInput);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async create(rawUserInput: CreateUserInput): Promise<User> {
-    try {
-      const newUserInput = await this._hashPassword(rawUserInput);
-
-      const user = await this.usersRepository.create(newUserInput);
-
-      return user;
-    } catch (error) {}
-  }
-
-  async update(id: string, rawUserInput: UpdateUserInput): Promise<User> {
-    try {
-      const user = await this.usersRepository.update(id, rawUserInput);
-      return user;
-    } catch (error) {}
-  }
-
-  async delete(id: string): Promise<Boolean> {
-    try {
-      await this.usersRepository.delete(id);
-      return true;
-    } catch (error) {}
-  }
-
+  // Private helper for password hashing.
   private async _hashPassword(user: CreateUserInput): Promise<CreateUserInput> {
     try {
       const password = user.password;
-
       if (!password) {
         throw new BadRequestException(
           'Invalid input for password field of User.'
         );
       }
-
       const hashedPassword = await argon2.hash(password, argonConstants);
-
       user.password = hashedPassword;
-
       return user;
     } catch (error) {
       throw new InternalServerErrorException(error.message);

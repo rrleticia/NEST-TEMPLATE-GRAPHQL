@@ -1,5 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { UsersService } from './users.service';
+import { Resolver } from '@nestjs/graphql';
 import { User } from './models/user.model';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
@@ -7,56 +6,34 @@ import {
   PaginatedOffsetUser,
   PaginatedCursorUser,
 } from './models/paginated-users';
-import { FetchPageCursorArgs } from '@common/pagination/cursor';
+import { UsersService } from './users.service';
 import { FetchPageOffsetArgs } from '@common/pagination/offset';
-import { Roles } from '@common/roles';
-import { Role } from '@prisma/client';
+import { FetchPageCursorArgs } from '@common/pagination/cursor';
+import { BaseResolverFactory } from '@common/base/base.resovler';
 
+// Create a base class with all generic resolver methods.
+const UsersBaseResolver = BaseResolverFactory<
+  User,
+  CreateUserInput,
+  UpdateUserInput,
+  PaginatedOffsetUser,
+  PaginatedCursorUser,
+  FetchPageOffsetArgs,
+  FetchPageCursorArgs
+>(
+  () => User, // Object type for the model
+  () => CreateUserInput, // Create input type
+  () => UpdateUserInput, // Update input type
+  () => PaginatedOffsetUser, // Paginated offset type
+  () => PaginatedCursorUser, // Paginated cursor type
+  () => FetchPageOffsetArgs, // Offset arguments type
+  () => FetchPageCursorArgs // Cursor arguments type
+);
+
+// Now, decorate the concrete resolver with @Resolver.
 @Resolver(() => User)
-export class UsersResolver {
-  constructor(private _usersService: UsersService) {}
-
-  @Roles(Role.ADMIN)
-  @Query(() => PaginatedOffsetUser, { name: 'usersOffset' })
-  async getUsersWithOffset(
-    @Args('fetchPageArgs')
-    fetchPageArgs: FetchPageOffsetArgs
-  ): Promise<PaginatedOffsetUser> {
-    const page = await this._usersService.findAllOffSet(fetchPageArgs);
-    return page;
-  }
-
-  @Query(() => PaginatedCursorUser, { name: 'usersCursor' })
-  async getUsersWithCursor(
-    @Args('fetchPageArgs')
-    fetchPageArgs: FetchPageCursorArgs
-  ): Promise<PaginatedCursorUser> {
-    const page = await this._usersService.findAllCursor(fetchPageArgs);
-    return page;
-  }
-
-  @Query(() => User, { name: 'user' })
-  async getUser(@Args('id') id: string): Promise<User> {
-    return await this._usersService.findOneById(id);
-  }
-
-  @Mutation(() => User, { name: 'create' })
-  async createUser(
-    @Args('createUserInput') createUserInput: CreateUserInput
-  ): Promise<User> {
-    return await this._usersService.create(createUserInput);
-  }
-
-  @Mutation(() => User, { name: 'update' })
-  async updateUser(
-    @Args('id') id: string,
-    @Args('updateUserInput') updateUserInput: UpdateUserInput
-  ): Promise<User> {
-    return await this._usersService.update(id, updateUserInput);
-  }
-
-  @Mutation(() => Boolean, { name: 'delete' })
-  async delete(@Args('id') id: string): Promise<Boolean> {
-    return await this._usersService.delete(id);
+export class UsersResolver extends UsersBaseResolver {
+  constructor(usersService: UsersService) {
+    super(usersService);
   }
 }
